@@ -1,0 +1,14 @@
+REST API'S: using rest api data can be exchanged to mobile apps,web apps etc. doesn't render html codes.
+only works with data.
+
+
+CORS: can be fixed only on the server side using the right http headers. cors means resource sharing is only 
+allowed with two server of the same domain name.
+http Status code:
+http methods: get,post,put,patch,delete,options.
+option: default by browser to check whether the requested method by the client is allowed on the server or not.
+
+you can attach a form data to fetchAPI in body. It is useful when you are trying to send files and the req is not 
+only in the form of text.
+websockets detect change on server. they are established using http. It is a protocol.
+socket.io is a library which uses websockets.
