@@ -4,6 +4,10 @@ const bodyParser=require('body-parser');
 const mongoose=require('mongoose');
 const path=require('path');
 const multer=require('multer');
+const {graphqlHTTP}=require("express-graphql");
+const graphqlSchema=require('./graphql/schema');
+const graphqlResolver=require("./graphql/resolver")
+const auth=require('./middleware/auth');
 
 const fileStorage=multer.diskStorage({
   destination:(req,file,cb)=>{
@@ -29,18 +33,33 @@ app.use(multer({storage:fileStorage,fileFilter:fileFilter}).single('image'));
 app.use('/images',express.static(path.join(__dirname,'images')));
 
 app.use((req,res,next)=>{
-    // res.setHeader("Access-Control-Allow-Origin","*");
-    // res.setHeader("Access-Control-Allow-Methods","GET,POST,PUT,PATCH,DELETE");
-    // res.setHeader("Access-Control-Allow-Headers","Authorization,Content-Type");
-    // next();
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization,Content-Type');
+    if(req.method=== 'OPTIONS')
+    {
+      return res.sendStatus(200); //when using graphql as options is send before other method. graphql only allows get & post
+    }
     next();
 });
 
-app.use('/feed',require('./routers/feed'));
-app.use('/auth',require('./routers/auth'));
+app.use(auth);
+
+app.use('/graphql',graphqlHTTP({
+  schema: graphqlSchema,
+  rootValue: graphqlResolver,
+  graphiql:true,
+  customFormatErrorFn(err) {
+    if(!err.originalError)
+    {
+      return err;
+    }
+    const data=err.originalError.data;
+    const message=err.message || "An Error Occured";
+    const code=err.originalError.code || 500;
+    return { message:message, status:code, data:data};
+  }
+}));
 
 app.use((error,req,res,next)=>{
   console.log(error)
@@ -54,9 +73,5 @@ mongoose
   )
   .then(result => {
     const server=app.listen(8080);
-    const io=require('socket.io')(server);
-    io.on('connection',socket=>{
-      console.log("Client Connected");
-    })
   })
   .catch(err => console.log(err));

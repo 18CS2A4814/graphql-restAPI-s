@@ -12,3 +12,7 @@ you can attach a form data to fetchAPI in body. It is useful when you are trying
 only in the form of text.
 websockets detect change on server. they are established using http. It is a protocol.
 socket.io is a library which uses websockets.
+
+API : application programming interface, acts as an interface to exchange data between two application.
+uses a set of protocol.
+Rest vs restful vs graphql api'S
